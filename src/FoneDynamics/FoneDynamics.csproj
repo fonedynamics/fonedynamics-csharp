@@ -44,16 +44,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Base\ApiException.cs" />
     <Compile Include="FoneDynamicsClient.cs" />
     <Compile Include="Http\HttpClient.cs" />
     <Compile Include="Http\HttpMethod.cs" />
+    <Compile Include="Http\HttpResponse.cs" />
     <Compile Include="Http\Request.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rest\V2\Errors\ErrorResponse.cs" />
+    <Compile Include="Rest\V2\Errors\ResponseStatus.cs" />
     <Compile Include="Rest\V2\Messaging\MessageDirection.cs" />
     <Compile Include="Rest\V2\Messaging\MessageResource.cs" />
+    <Compile Include="Rest\V2\Messaging\MessageResponse.cs" />
     <Compile Include="Rest\V2\Messaging\MessageStatus.cs" />
     <Compile Include="Rest\V2\Types\WebhookMethod.cs" />
-    <Compile Include="Serialization\Json.cs" />
+    <Compile Include="Utility\Web.cs" />
+    <Compile Include="Utility\Json.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

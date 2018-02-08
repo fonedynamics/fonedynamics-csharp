@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FoneDynamics.Rest.V2.Messaging
+namespace FoneDynamics.Rest.V2
 {
     /// <summary>
     /// The status of a message.

@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FoneDynamics.Http;
 
 namespace FoneDynamics
 {
@@ -17,6 +18,7 @@ namespace FoneDynamics
         private string _accountSid;
         private string _token;
         private string _defaultPropertySid;
+        private HttpClient _httpClient;
 
         /// <summary>
         /// Constructs a new FoneDynamicsClient.
@@ -30,6 +32,8 @@ namespace FoneDynamics
             _accountSid = accountSid;
             _token = token;
             _defaultPropertySid = defaultPropertySid;
+            // create new http client
+            _httpClient = new HttpClient();
         }
 
         /// <summary>
@@ -71,14 +75,37 @@ namespace FoneDynamics
         }
 
         /// <summary>
+        /// The AccountSid to use for requests.
+        /// </summary>
+        internal string AccountSid => _accountSid;
+
+        /// <summary>
+        /// The token to use for requests.
+        /// </summary>
+        internal string Token => _token;
+
+        /// <summary>
         /// The default PropertySid to use for requests where a PropertySid is not specified.
         /// </summary>
-        internal static string DefaultPropertySid
+        internal string DefaultPropertySid => _defaultPropertySid;
+
+        /// <summary>
+        /// Gets the HttpClient associated with this FoneDynamicsClient.
+        /// </summary>
+        internal HttpClient HttpClient => _httpClient;
+
+        /// <summary>
+        /// Sets the default values.
+        /// Throws validation exceptions when not configured correctly.
+        /// </summary>
+        internal static void SetDefaults(ref string propertySid, ref FoneDynamicsClient foneDynamicsClient)
         {
-            get
-            {
-                return DefaultInstance?._defaultPropertySid;
-            }
+            // if no client specified, use default
+            if (foneDynamicsClient == null) foneDynamicsClient = DefaultInstance;
+
+            // if property not specified, use default. if still null, fail
+            if (propertySid == null) propertySid = foneDynamicsClient.DefaultPropertySid;
+            if (propertySid == null) throw new ArgumentNullException(nameof(propertySid), "PropertySid not specified and no default exists.");
         }
     }
 }

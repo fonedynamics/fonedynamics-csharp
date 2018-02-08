@@ -7,17 +7,13 @@ using System.Threading.Tasks;
 namespace FoneDynamics.Rest.V2
 {
     /// <summary>
-    /// The method to use for webhooks.
+    /// The response to a Message request.
     /// </summary>
-    public enum WebhookMethod
+    internal class MessageResponse
     {
         /// <summary>
-        /// Webhooks should use POST.
+        /// The message that was sent.
         /// </summary>
-        Post,
-        /// <summary>
-        /// Webhooks should use GET.
-        /// </summary>
-        Get
+        public MessageResource Message { get; internal set; }
     }
 }

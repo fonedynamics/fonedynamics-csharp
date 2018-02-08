@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FoneDynamics.Http;
-using FoneDynamics.Rest.V2.Types;
+using FoneDynamics.Utility;
 
-namespace FoneDynamics.Rest.V2.Messaging
+namespace FoneDynamics.Rest.V2
 {
     /// <summary>
     /// Represents a message and contains messaging functionality.
@@ -53,17 +53,17 @@ namespace FoneDynamics.Rest.V2.Messaging
         /// <summary>
         /// The number of message segments.
         /// </summary>
-        public int NumSegments { get; internal set; }
+        public int? NumSegments { get; internal set; }
 
         /// <summary>
         /// The message status. See below table for possible values.
         /// </summary>
-        public MessageStatus Status { get; internal set; }
+        public MessageStatus? Status { get; internal set; }
 
         /// <summary>
         /// The direction of the message.
         /// </summary>
-        public MessageDirection Direction { get; internal set; }
+        public MessageDirection? Direction { get; internal set; }
 
         /// <summary>
         /// Timestamp of when the message is/was scheduled to be sent.
@@ -113,7 +113,7 @@ namespace FoneDynamics.Rest.V2.Messaging
         /// The method to use for delivery receipt callbacks. Valid options are POST and GET.
         /// Default is POST.
         /// </summary>
-        public Types.WebhookMethod DeliveryReceiptWebhookMethod { get; internal set; }
+        public WebhookMethod? DeliveryReceiptWebhookMethod { get; internal set; }
 
         /// <summary>
         /// When a response is received, forward it to this number in E164 format.
@@ -146,7 +146,7 @@ namespace FoneDynamics.Rest.V2.Messaging
         /// The method to use for response callbacks. Valid options are POST and GET.
         /// Default is POST.
         /// </summary>
-        public Types.WebhookMethod WebhookMethod { get; internal set; }
+        public WebhookMethod? WebhookMethod { get; internal set; }
 
         /// <summary>
         /// Hidden parameterless constructor.
@@ -204,10 +204,10 @@ namespace FoneDynamics.Rest.V2.Messaging
             string from = null,
             int? schedule = null,
             string webhookUri = null,
-            Types.WebhookMethod webhookMethod = WebhookMethod.Post,
+            WebhookMethod? webhookMethod = null,
             bool deliveryReceipt = true,
             string deliveryReceiptWebhookUri = null,
-            Types.WebhookMethod deliveryReceiptWebhookMethod = WebhookMethod.Post,
+            WebhookMethod? deliveryReceiptWebhookMethod = null,
             string forwardToSms = null,
             string forwardFromSms = null,
             string forwardToEmail = null,
@@ -251,17 +251,25 @@ namespace FoneDynamics.Rest.V2.Messaging
             if (message == null) throw new ArgumentNullException(nameof(message));
             if (message.MessageSid != null) throw new InvalidOperationException("Cannot send an existing message.");
 
-            // if property not specified, use default. if still null, fail
-            if (propertySid == null) propertySid = FoneDynamicsClient.DefaultPropertySid;
-            if (propertySid == null) throw new ArgumentNullException(nameof(propertySid), "PropertySid not specified and no default exists.");
-
-            // if no client specified, use default
-            if (foneDynamicsClient == null) foneDynamicsClient = FoneDynamicsClient.DefaultInstance;
+            // set defaults
+            FoneDynamicsClient.SetDefaults(ref propertySid, ref foneDynamicsClient);
 
             // construct the request
-            //Request request = new Request()
+            Request request = new Request(HttpMethod.Post, $"/v2/Properties/{Web.UrlEncode(propertySid)}/Messages",
+                foneDynamicsClient.AccountSid, foneDynamicsClient.Token);
 
-            throw new NotImplementedException();
+            // set the request body
+            request.SetBody(Json.Serialize(message), Json.CONTENT_TYPE);
+
+            // perform the request and get the response
+            HttpResponse response = foneDynamicsClient.HttpClient.Send(request);
+
+            // throw if failed
+            if (!response.IsSuccess) throw Errors.ErrorResponse.CreateException(response);
+
+            // deserialise and return
+            MessageResponse msg = Json.Deserialize<MessageResponse>(response.Content);
+            return msg.Message;
         }
     }
 }

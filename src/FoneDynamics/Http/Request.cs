@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FoneDynamics.Utility;
 
 namespace FoneDynamics.Http
 {
@@ -23,35 +24,48 @@ namespace FoneDynamics.Http
         /// <summary>
         /// The path to make the request to.
         /// </summary>
-        public string Path { get; private set; }
+        internal string Path { get; private set; }
 
         /// <summary>
         /// Optional list of query string parameters.
         /// </summary>
-        public List<KeyValuePair<string, string>> QueryParameters { get; private set; }
+        internal List<KeyValuePair<string, string>> QueryParameters { get; private set; }
+
+        /// <summary>
+        /// The HTTP method to use for the request.
+        /// </summary>
+        internal HttpMethod Method { get; private set; }
 
         /// <summary>
         /// Optional body of the request.
         /// </summary>
-        public byte[] RequestBody { get; private set; }
+        internal byte[] RequestBody { get; private set; }
 
         /// <summary>
         /// Optional content type of the request.
         /// </summary>
-        public string ContentType { get; private set; }
+        internal string ContentType { get; private set; }
 
-        private string _accountSid;
-        private string _token;
+        /// <summary>
+        /// The AccountSid to use for this request.
+        /// </summary>
+        internal string AccountSid { get; private set; }
+
+        /// <summary>
+        /// The token to use for this request.
+        /// </summary>
+        internal string Token { get; private set; }
 
         /// <summary>
         /// Constructs a new request.
         /// </summary>
-        internal Request(string path, string accountSid, string token)
+        internal Request(HttpMethod method, string path, string accountSid, string token)
         {
             // persist
+            Method = method;
             Path = path;
-            _accountSid = accountSid;
-            _token = token;
+            AccountSid = accountSid;
+            Token = token;
         }
 
         /// <summary>
@@ -70,6 +84,23 @@ namespace FoneDynamics.Http
         {
             RequestBody = requestBody;
             ContentType = contentType;
+        }
+
+        /// <summary>
+        /// Sets the body of the request. The request body will be encoded as UTF8.
+        /// </summary>
+        internal void SetBody(string requestBody, string contentType)
+        {
+            RequestBody = Encoding.UTF8.GetBytes(requestBody);
+            ContentType = contentType;
+        }
+
+        /// <summary>
+        /// Returns the URI for this request.
+        /// </summary>
+        internal string CreateUri()
+        {
+            return $"https://{API_HOST}{Path}{Web.CompileQueryString(QueryParameters)}";
         }
     }
 }
