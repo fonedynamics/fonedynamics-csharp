@@ -271,5 +271,116 @@ namespace FoneDynamics.Rest.V2
             MessageResponse msg = Json.Deserialize<MessageResponse>(response.Content);
             return msg.Message;
         }
+
+        /// <summary>
+        /// Sends the specified message.
+        /// </summary>
+        /// <param name="to">The recipient of the SMS message in E164 format (including + prefix).</param>
+        /// <param name="text">The content of the SMS message.</param>
+        /// <param name="from">
+        /// The sender ID. This can be a mobile phone number in E164 format (including + prefix),
+        /// an alphanumeric string, or blank or null to send from a leased number.
+        /// </param>
+        /// <param name="schedule">
+        /// The UTC time in seconds since Unix Epoch to send the message.
+        /// This can be at most 14 days in the future. If the value is in the past, the request will
+        /// fail, unless the value is less than 1 hour in the past, in which case the request will
+        /// succeed and the message will be sent immediately.
+        /// </param>
+        /// <param name="webhookUri">The callback URI to invoke when a response is received.</param>
+        /// <param name="webhookMethod">
+        /// The method to use for response callbacks. Valid options are POST and GET. Default is POST.
+        /// </param>
+        /// <param name="deliveryReceipt">Whether to request a delivery receipt.</param>
+        /// <param name="deliveryReceiptWebhookUri">
+        /// The callback URI to invoke when a delivery receipt is received.
+        /// Note that DeliveryReceipt must be set to true for this to be triggered.
+        /// </param>
+        /// <param name="deliveryReceiptWebhookMethod">
+        /// The method to use for delivery receipt callbacks. Valid options are POST and GET.
+        /// Default is POST.
+        /// </param>
+        /// <param name="forwardToSms">
+        /// When a response is received, forward it to this number in E164 format.
+        /// </param>
+        /// <param name="forwardFromSms">
+        /// When forwarding via SMS, send from this E164 formatted number or alphanumeric sender ID.
+        /// By default the sender ID will be the sender ID of the responding party.
+        /// </param>
+        /// <param name="forwardToEmail">
+        /// When a response is received, forward it over email to this email address.
+        /// </param>
+        /// <param name="forwardFromEmail">
+        /// When forwarding via email, send from this email address.  By default this is a "no reply"
+        /// email address.
+        /// </param>
+        /// <param name="propertySid">
+        /// The PropertySid of the property against which to send the message.
+        /// If null, the default PropertySid will be used, unless it is undefined,
+        /// in which case an exception will be thrown.
+        /// </param>
+        /// <param name="foneDynamicsClient">
+        /// The FoneDynamicsClient instance to use.  If null, the default instance will be used.
+        /// </param>
+        /// <returns>The MessageResource that was sent, or an exception on failure.</returns>
+        public static MessageResource Send(
+            string to,
+            string text,
+            string from = null,
+            int? schedule = null,
+            string webhookUri = null,
+            WebhookMethod? webhookMethod = null,
+            bool deliveryReceipt = true,
+            string deliveryReceiptWebhookUri = null,
+            WebhookMethod? deliveryReceiptWebhookMethod = null,
+            string forwardToSms = null,
+            string forwardFromSms = null,
+            string forwardToEmail = null,
+            string forwardFromEmail = null,
+            string propertySid = null,
+            FoneDynamicsClient foneDynamicsClient = null)
+        {
+            // build new MessageResource
+            MessageResource msg = new MessageResource(
+                to, text, from, schedule, webhookUri, webhookMethod, deliveryReceipt, deliveryReceiptWebhookUri,
+                deliveryReceiptWebhookMethod, forwardToSms, forwardFromSms, forwardToEmail, forwardFromEmail);
+
+            // send
+            return Send(msg, propertySid, foneDynamicsClient);
+        }
+
+        /// <summary>
+        /// Gets a message against the account by its MessageSid.
+        /// </summary>
+        /// <param name="messageSid">The MessageSid of the message to retrieve.</param>
+        /// <param name="foneDynamicsClient">
+        /// The FoneDynamicsClient instance to use.  If null, the default instance will be used.
+        /// </param>
+        /// <returns>The MessageResource that was sent, or an exception on failure.</returns>
+        public static MessageResource Get(
+            string messageSid,
+            string propertySid = null,
+            FoneDynamicsClient foneDynamicsClient = null)
+        {
+            // validate
+            if (messageSid == null) throw new ArgumentNullException(nameof(messageSid));
+
+            // set defaults
+            FoneDynamicsClient.SetDefaults(ref propertySid, ref foneDynamicsClient);
+
+            // construct the request
+            Request request = new Request(HttpMethod.Get, $"/v2/Messages/{Web.UrlEncode(messageSid)}",
+                foneDynamicsClient.AccountSid, foneDynamicsClient.Token);
+
+            // perform the request and get the response
+            HttpResponse response = foneDynamicsClient.HttpClient.Send(request);
+
+            // throw if failed
+            if (!response.IsSuccess) throw Errors.ErrorResponse.CreateException(response);
+
+            // deserialise and return
+            MessageResponse msg = Json.Deserialize<MessageResponse>(response.Content);
+            return msg.Message;
+        }
     }
 }
