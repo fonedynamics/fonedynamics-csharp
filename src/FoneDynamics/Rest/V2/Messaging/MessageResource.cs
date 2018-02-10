@@ -68,27 +68,27 @@ namespace FoneDynamics.Rest.V2
         /// <summary>
         /// Timestamp of when the message is/was scheduled to be sent.
         /// </summary>
-        public int? Scheduled { get; internal set; }
+        public long? Scheduled { get; internal set; }
 
         /// <summary>
         /// Timestamp of when the message resource was created.
         /// </summary>
-        public int? Created { get; internal set; }
+        public long? Created { get; internal set; }
 
         /// <summary>
         /// Timestamp of when the message was submitted to the SMS Center.
         /// </summary>
-        public int? Submitted { get; internal set; }
+        public long? Submitted { get; internal set; }
 
         /// <summary>
         /// Timestamp of when the message delivery occurred.
         /// </summary>
-        public int? Delivered { get; internal set; }
+        public long? Delivered { get; internal set; }
 
         /// <summary>
         /// Timestamp of when an inbound message was received.
         /// </summary>
-        public int? Received { get; internal set; }
+        public long? Received { get; internal set; }
 
         /// <summary>
         /// Error code (if message submission or delivery failed).
@@ -101,7 +101,7 @@ namespace FoneDynamics.Rest.V2
         /// the value is less than 1 hour in the past, in which case the request will succeed
         /// and the message will be sent immediately.
         /// </summary>
-        public int? Schedule { get; internal set; }
+        public long? Schedule { get; internal set; }
 
         /// <summary>
         /// The callback URI to invoke when a delivery receipt is received. Note that
@@ -202,7 +202,7 @@ namespace FoneDynamics.Rest.V2
             string to,
             string text,
             string from = null,
-            int? schedule = null,
+            long? schedule = null,
             string webhookUri = null,
             WebhookMethod? webhookMethod = null,
             bool deliveryReceipt = true,
@@ -327,7 +327,7 @@ namespace FoneDynamics.Rest.V2
             string to,
             string text,
             string from = null,
-            int? schedule = null,
+            long? schedule = null,
             string webhookUri = null,
             WebhookMethod? webhookMethod = null,
             bool deliveryReceipt = true,
