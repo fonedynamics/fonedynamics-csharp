@@ -55,7 +55,7 @@ Console.WriteLine($"Sent message with MessageSid: {msg.MessageSid} From: {msg.Fr
 
 ### Getting a message
 
-To get the details of a message that has already been sent, use `MessageResource.Get()`.
+To get the details of a message that has been sent or received, use `MessageResource.Get()`.
 
 ```cs
 // get a message by its MessageSid
