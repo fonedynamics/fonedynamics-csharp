@@ -1,6 +1,6 @@
 # Fone Dynamics Client Library for .NET
 
-.NET 4.5 client library for [Fone Dynamics](https://www.fonedynamics.com/) services.
+.NET 4.5 client library for [Fone Dynamics](https://www.fonedynamics.com/) services.  This library currently supports messaging only.
 
 ## Installing the Fone Dynamics Client Library for .NET
 
@@ -38,3 +38,36 @@ FoneDynamicsClient.Initialize("YOUR_ACCOUNT_SID", "YOUR_TOKEN", "OPTIONAL_DEFAUL
 ```
 
 Alternatively, if you need to interact with multiple Fone Dynamics accounts, you can construct an instance of `FoneDynamicsClient` for a specific account and explicitly pass this as an argument when interacting with the client library.
+
+## Usage
+
+### Sending a message
+
+To send a message, use `MessageResource.Send()`.  The response will contain details of the message that has been sent.
+
+```cs
+// send the message. use from: null to auto-allocate a sender ID
+MessageResource msg = MessageResource.Send("+61499999999", from: null, text: "Hello world!");
+
+// log details of sent message to console
+Console.WriteLine($"Sent message with MessageSid: {msg.MessageSid} From: {msg.From} To: {msg.To} Text: {msg.Text}");
+```
+
+### Getting a message
+
+To get the details of a message that has already been sent, use `MessageResource.Get()`.
+
+```cs
+// get a message by its MessageSid
+string messageSid = "MGTBUEHNLFOOHNSIOCSAQRRUKLMEZSLE";
+MessageResource msg = MessageResource.Get(messageSid);
+
+// log details of message to console
+Console.WriteLine($"Fetched message. MessageSid: {msg.MessageSid} From: {msg.From} To: {msg.To} Text: {msg.Text}");
+```
+
+## Documentation
+
+IntelliSense documentation is included for all methods and parameters.
+
+For additional documentation, please see the [Fone Dynamics REST API Documentation](https://www.fonedynamics.com/docs/rest-api).
