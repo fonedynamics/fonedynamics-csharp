@@ -14,7 +14,7 @@ namespace FoneDynamics.Tests.Extensions
         [TestCase]
         public void ToUnixTime_WithUtcDate_ConvertsTimeCorrectly()
         {
-            DateTime utcDate = new DateTime(2018, 2, 10, 9, 59, 20);
+            DateTime utcDate = new DateTime(2018, 2, 10, 9, 59, 20, DateTimeKind.Utc);
             long unixTime = utcDate.ToUnixTime();
             long expectedTime = 1518256760;
             Assert.AreEqual(expectedTime, unixTime);
