@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using FoneDynamics.Http;
 using FoneDynamics.Utility;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace FoneDynamics.Rest.V2
 {
@@ -58,11 +60,13 @@ namespace FoneDynamics.Rest.V2
         /// <summary>
         /// The message status. See below table for possible values.
         /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
         public MessageStatus? Status { get; internal set; }
 
         /// <summary>
         /// The direction of the message.
         /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
         public MessageDirection? Direction { get; internal set; }
 
         /// <summary>
@@ -113,6 +117,7 @@ namespace FoneDynamics.Rest.V2
         /// The method to use for delivery receipt callbacks. Valid options are POST and GET.
         /// Default is POST.
         /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
         public WebhookMethod? DeliveryReceiptWebhookMethod { get; internal set; }
 
         /// <summary>
@@ -146,6 +151,7 @@ namespace FoneDynamics.Rest.V2
         /// The method to use for response callbacks. Valid options are POST and GET.
         /// Default is POST.
         /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
         public WebhookMethod? WebhookMethod { get; internal set; }
 
         /// <summary>
