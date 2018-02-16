@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using FoneDynamics.Http;
 using FoneDynamics.Utility;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace FoneDynamics.Rest.V2
 {
@@ -58,11 +60,13 @@ namespace FoneDynamics.Rest.V2
         /// <summary>
         /// The message status. See below table for possible values.
         /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
         public MessageStatus? Status { get; internal set; }
 
         /// <summary>
         /// The direction of the message.
         /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
         public MessageDirection? Direction { get; internal set; }
 
         /// <summary>
@@ -113,6 +117,7 @@ namespace FoneDynamics.Rest.V2
         /// The method to use for delivery receipt callbacks. Valid options are POST and GET.
         /// Default is POST.
         /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
         public WebhookMethod? DeliveryReceiptWebhookMethod { get; internal set; }
 
         /// <summary>
@@ -146,12 +151,13 @@ namespace FoneDynamics.Rest.V2
         /// The method to use for response callbacks. Valid options are POST and GET.
         /// Default is POST.
         /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
         public WebhookMethod? WebhookMethod { get; internal set; }
 
         /// <summary>
         /// Hidden parameterless constructor.
         /// </summary>
-        private MessageResource()
+        protected MessageResource()
         {
         }
 
@@ -381,6 +387,51 @@ namespace FoneDynamics.Rest.V2
             // deserialise and return
             MessageResponse msg = Json.Deserialize<MessageResponse>(response.Content);
             return msg.Message;
+        }
+
+        /// <summary>
+        /// Sends multiple messages at once.  Individual messages can succeed or fail using this request.
+        /// The details of successful and failed messages is available in the response list.
+        /// </summary>
+        /// <param name="messages">The messages to send constructed using the MessageResource constructor.</param>
+        /// <param name="propertySid">
+        /// The PropertySid of the property against which to send the message.
+        /// If null, the default PropertySid will be used, unless it is undefined,
+        /// in which case an exception will be thrown.
+        /// </param>
+        /// <param name="foneDynamicsClient">
+        /// The FoneDynamicsClient instance to use.  If null, the default instance will be used.
+        /// </param>
+        /// <returns>A list of messages that were sent, including successful and failed messages.</returns>
+        public static IList<BatchMessageResource> Send(
+            IEnumerable<MessageResource> messages,
+            string propertySid = null,
+            FoneDynamicsClient foneDynamicsClient = null)
+        {
+            // validate
+            if (messages == null) throw new ArgumentNullException(nameof(messages));
+            if (messages.Any(m => m.MessageSid != null)) throw new InvalidOperationException("Cannot send an existing message.");
+
+            // set defaults
+            FoneDynamicsClient.SetDefaults(ref propertySid, ref foneDynamicsClient);
+
+            // construct the request
+            Request request = new Request(HttpMethod.Post, $"/v2/Properties/{Web.UrlEncode(propertySid)}/BatchMessages",
+                foneDynamicsClient.AccountSid, foneDynamicsClient.Token);
+
+            // set the request body
+            BatchMessageRequest batchMessageRequest = new BatchMessageRequest(messages);
+            request.SetBody(Json.Serialize(batchMessageRequest), Json.CONTENT_TYPE);
+
+            // perform the request and get the response
+            HttpResponse response = foneDynamicsClient.HttpClient.Send(request);
+
+            // throw if failed
+            if (!response.IsSuccess) throw Errors.ErrorResponse.CreateException(response);
+
+            // deserialise and return
+            List<BatchMessageResource> responseList = Json.Deserialize<List<BatchMessageResource>>(response.Content);
+            return responseList;
         }
     }
 }
