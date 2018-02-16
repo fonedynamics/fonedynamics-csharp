@@ -66,6 +66,35 @@ MessageResource msg = MessageResource.Get(messageSid);
 Console.WriteLine($"Fetched message. MessageSid: {msg.MessageSid} From: {msg.From} To: {msg.To} Text: {msg.Text}");
 ```
 
+### Batch sending messages
+
+To send a batch of messages, use the overload of `MessageResource.Send()` that accepts an `IEnumerable<MessageResource>`.  Individual messages within the batch can succeed or fail. The return value is a list of messages that have been sent and failed, and you can determine whether a message succeeded by checking the `Successful` property against a message in the return list.
+
+```cs
+// construct and messages
+List<MessageResource> messages = new List<MessageResource>()
+{
+    new MessageResource("+61499999999", from: "FDX", text: "and a one"),
+    new MessageResource("+61499999999", from: "FDX", text: "and a two"),
+    new MessageResource("+61499999999", from: "FDX", text: "and a one, two, three!")
+};
+var responses = MessageResource.Send(messages);
+
+// write responses to console
+for (int i = 0; i < responses.Count; i++)
+{
+    var response = responses[i];
+    if (response.Successful)
+    {
+        Console.WriteLine($"Message #{i} successful! MessageSid: {response.MessageSid}");
+    }
+    else
+    {
+        Console.WriteLine($"Message #{i} failed! {response.ErrorCode}: {response.ErrorMessage}");
+    }
+}
+```
+
 ## Documentation
 
 IntelliSense documentation is included for all methods and parameters.
