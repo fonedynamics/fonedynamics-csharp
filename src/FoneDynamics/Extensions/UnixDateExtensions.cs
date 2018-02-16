@@ -21,7 +21,7 @@ namespace FoneDynamics.Extensions
         /// </summary>
         public static long ToUnixTime(this DateTime date)
         {
-            return (long)date.Subtract(_epoch).TotalSeconds;
+            return (long)date.ToUniversalTime().Subtract(_epoch).TotalSeconds;
         }
 
         /// <summary>
