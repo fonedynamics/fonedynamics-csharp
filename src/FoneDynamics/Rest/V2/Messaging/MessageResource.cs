@@ -359,6 +359,7 @@ namespace FoneDynamics.Rest.V2
         /// Gets a message against the account by its MessageSid.
         /// </summary>
         /// <param name="messageSid">The MessageSid of the message to retrieve.</param>
+        /// <param name="propertySid">The PropertySid of the property associated with the the message.</param>
         /// <param name="foneDynamicsClient">
         /// The FoneDynamicsClient instance to use.  If null, the default instance will be used.
         /// </param>
